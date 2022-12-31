@@ -79,7 +79,7 @@ struct node* minEle(struct node *root){
 
 int height(struct node *root){
 	if(root==NULL)
-		return -1;
+		return 0;
 		
 	int leftHeight = height(root->leftAdr);
 	int rightHeight = height(root->rightAdr);
@@ -102,11 +102,70 @@ int depthOfEle(struct node *root, int ele){
 	return 0;
 }
 
+struct node* minValNode(struct node* root)
+{
+	struct node* current = root;
+	while (current && current->leftAdr != NULL)
+		current = current->leftAdr;
+		
+	return current;
+}
+
+struct node* deleteNode(struct node* root, int ele){
+	if(root==NULL)
+		return root;
+		
+	if(root->key > ele)
+		root->leftAdr = deleteNode(root->leftAdr, ele);
+	else if(root->key < ele)
+		root->rightAdr = deleteNode(root->rightAdr, ele);
+		
+	else{
+	if(root->leftAdr == NULL){
+		struct node* delNode = root->rightAdr;
+		free(root);
+		return delNode;
+	}
+		
+	else if(root->rightAdr == NULL){
+		struct node* delNode = root->leftAdr;
+		free(root);
+		return delNode;
+	}
+		
+	struct node* delNode = minValNode(root->rightAdr);
+	root->key = delNode->key;	
+	root->rightAdr = deleteNode(root->rightAdr, delNode->key);
+}
+	
+	return root;
+}
+
+void printLevel(struct node* root, int level){
+	if(root==NULL)
+		return;
+		
+	if(level==1)
+		printf(" => %d",root->key);
+		
+	else if(level > 1){
+		printLevel(root->leftAdr, level-1);
+		printLevel(root->rightAdr, level-1);
+	}
+}
+
+void levelOrder(struct node *root){
+	int level = height(root);
+	int i;
+	for(i=1; i<=level; i++)
+		printLevel(root, i);
+}
+
 int main(void) {
 	
-	 	    root = insert(root, 4);
+	 	root = insert(root, 4);
         root = insert(root, 2);
-        root = insert(root, 3);
+        root = insert(root, 39);
         root = insert(root, 1);
         root = insert(root, 6);
         root = insert(root, 5);
@@ -128,6 +187,13 @@ int main(void) {
 	printf("HEIGHT = %d\n",height(root));
 	
 	printf("DEPTH = %d\n",depthOfEle(root,2));
+	   
+	deleteNode(root, 39);
+	printf("\n AFTER DELETION AN ELEMENT 39 -- ");
+	postorder(root);
+	printf("\n level order ");
+	
+	levelOrder(root);
 	
 	return 0;
 }
